@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 from user.models import User
 from user.schemas import UserBase
 
+from hash.hash import Hash
 
 
 
@@ -20,13 +21,17 @@ async def get_all_users(db:AsyncSession):
 
 async def create_user(db:AsyncSession, user:UserBase):
     try:
-        new_user = User(**user.model_dump())
+        new_user = User(
+            username=user.username,
+            email=user.email,
+            hashed_password=Hash.bcrypt(user.hashed_password)
+        )
         db.add(new_user)
         await db.commit()
         await db.refresh(new_user)
         return new_user
     except IntegrityError:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail='user already exist')
     
     
