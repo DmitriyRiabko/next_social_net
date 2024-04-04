@@ -7,7 +7,7 @@ from sqlalchemy import select
 from database import get_async_session
 from user.models import User
 from hash.hash import Hash
-from oAuth2 import create_access_token
+from .oAuth2 import create_access_token
 
 
 router = APIRouter(tags=["auth"])
