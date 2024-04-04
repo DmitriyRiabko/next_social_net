@@ -1,0 +1,45 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException, status
+
+from user.models import User
+from user.schemas import UserBase
+
+
+
+
+async def get_all_users(db:AsyncSession):
+    query = select(User)
+    res =  await db.execute(query)
+    users = res.scalars().all()
+    return users
+
+
+
+
+async def create_user(db:AsyncSession, user:UserBase):
+    try:
+        new_user = User(**user.model_dump())
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
+        return new_user
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail='user already exist')
+    
+    
+    
+    
+async def get_user_by_username(db:AsyncSession, username:str):
+    query = select(User).where(User.username == username)
+    res = await db.execute(query)
+    user = res.scalar_one_or_none()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+        
+    return user
