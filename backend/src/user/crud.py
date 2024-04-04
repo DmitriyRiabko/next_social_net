@@ -30,7 +30,9 @@ async def create_user(db:AsyncSession, user:UserBase):
         return new_user
     except IntegrityError:
         await db.rollback()
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail='user or email already exist')
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='user or email already exist')
     
     
     
