@@ -9,6 +9,7 @@ from user import crud
  
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
  
+ # openssl rand -hex 32
 SECRET_KEY = 'df53e1ac62c55b95f2c4e8eff42fa3b20f8b1317fae9d83715c14f2529bd5042'
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
@@ -23,7 +24,10 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
   encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
   return encoded_jwt
  
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_async_session)):
+def get_current_user(
+    token: str = Depends(oauth2_scheme), 
+    db: Session = Depends(get_async_session)
+):
   credentials_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail="Could not validate credentials",
