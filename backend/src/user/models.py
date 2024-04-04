@@ -2,7 +2,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String
 from typing import Optional
 
-from src.database import Base
+from database import Base
 
 
 
