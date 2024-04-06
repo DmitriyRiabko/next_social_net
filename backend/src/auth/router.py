@@ -13,19 +13,20 @@ from .oAuth2 import create_access_token
 router = APIRouter(tags=["auth"])
 
 
-@router.post("/login")
-def login(
+@router.post("/login",status_code=status.HTTP_202_ACCEPTED)
+async def login(
     request: OAuth2PasswordRequestForm = Depends(), 
     db: Session = Depends(get_async_session)
 ):
     stmt = select(User).where(User.username == request.username)
-    user = db.execute(stmt).scalar_one_or_none()
+    res = await db.execute(stmt)
+    user = res.scalar_one_or_none()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Invalid credentials"
         )
 
-    if not Hash.verify(user.password, request.password):
+    if not Hash.verify(user.hashed_password, request.password):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Incorrect password"
         )
